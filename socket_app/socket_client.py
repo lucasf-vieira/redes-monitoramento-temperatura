@@ -1,5 +1,5 @@
 import socket
-from temperature_read import Temperature
+from system_info.temperature import Temperature
 import time
 
 

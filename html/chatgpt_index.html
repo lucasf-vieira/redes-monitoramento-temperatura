@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Display</title>
+    <style>
+        /* Define the animation for number change */
+        @keyframes numberChange {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Apply the animation to the temperature numbers */
+        .temperature {
+            font-size: 2rem;
+            animation: numberChange 1s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <h1>Temperature</h1>
+    <div class="temperature" id="udp">Loading...</div>
+    <div class="temperature" id="tcp">Loading...</div>
+    <div class="temperature" id="mqtt">Loading...</div>
+
+    <script>
+        // Function to update temperature values from the /temperatures endpoint
+        function updateTemperatures() {
+            fetch('/temperatures')
+                .then(response => response.json())
+                .then(data => {
+                    // Update the temperature values
+                    document.getElementById('udp').innerText = data.udp;
+                    document.getElementById('tcp').innerText = data.tcp;
+                    document.getElementById('mqtt').innerText = data.mqtt;
+                })
+                .catch(error => {
+                    console.error('Error fetching temperature data:', error);
+                });
+        }
+
+        // Initial update
+        updateTemperatures();
+
+        // Periodically update temperature data
+        setInterval(updateTemperatures, 5000); // Update every 5 seconds
+    </script>
+</body>
+</html>

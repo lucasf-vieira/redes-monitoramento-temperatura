@@ -19,7 +19,6 @@ try:
         print("Conectado em", addr)
         data_tcp = tcp_conn.recv(1024)
         print("Mensagem TCP recebida: ", str(data_tcp))
-        # tcp_conn.sendall(data_tcp)
 
         data_tcp = data_tcp.decode()
         HttpRequest().update_temperature(JsonFormat("tcp", data_tcp))
@@ -30,9 +29,6 @@ try:
 
         data_udp = data_udp.decode()
         HttpRequest().update_temperature(JsonFormat("udp", data_udp))
-
-        # resposta = "Echo=>" + str(data_udp)
-        # udp_server.sendto(data_udp, addr)
 except KeyboardInterrupt:
     udp_server.close()
     tcp_conn.close()

@@ -3,7 +3,7 @@ import json
 
 
 app = Flask(__name__)
-data_file = 'data.json'
+data_file = 'html/data.json'
 
 
 @app.route("/")
@@ -11,7 +11,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/get_data", methods=["GET"])
+@app.route("/temperatures", methods=["GET"])
 def get_data():
     try:
         with open(data_file, "r") as file:
@@ -45,5 +45,5 @@ def update_data():
 
 
 if __name__ == "__main__":
-    app.template_folder = "templates"
+    app.template_folder = "html"
     app.run(host="0.0.0.0")

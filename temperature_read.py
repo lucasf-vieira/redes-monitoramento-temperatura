@@ -2,6 +2,12 @@ import psutil
 
 
 class Temperature:
+    POSSIBLE_TEMPERATURE_KEYS = ["k10temp", "coretemp"]
+
     def read_temperature(self):
-        cpu_temperature = psutil.sensors_temperatures()['k10temp'][0].current
-        return cpu_temperature
+        computer_temperatures = psutil.sensors_temperatures()
+        for key in self.POSSIBLE_TEMPERATURE_KEYS:
+            if key in computer_temperatures:
+                return computer_temperatures[key][0].current
+
+        raise Exception("No temperature found for the current computer.")

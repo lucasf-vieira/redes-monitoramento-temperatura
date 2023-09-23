@@ -1,41 +1,40 @@
 import socket
-from system_info.temperature import Temperature
-import time
+from client import Client
 
 
-HOST = '127.0.0.1'
-PORT_tcp = 1025
-PORT_udp = 1027
+class SocketClient(Client):
+    CLIENT_IP = '0.0.0.0'
+    CLIENT_PORT = 1027
 
-instance = Temperature()
+    def __init__(self):
+        super().__init__()
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.bind((self.CLIENT_IP, self.CLIENT_PORT))
+        while True:
+            try:
+                self.client_socket.connect(("127.0.0.1", 1028))
+                break
+            except ConnectionRefusedError:
+                continue
+        self.client_socket.setblocking(False)
 
-try:
-    while True:
-        temp_data = instance.read_temperature()
-        temp_data = str(temp_data)
+    def _send(self, average_temperature):
+        self.client_socket.sendto(
+            bytes(str(average_temperature), "utf8"),
+            (self.server_ip, self.server_port)
+        )
 
-        tcp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def _read(self):
         try:
-            tcp_client.connect((HOST, PORT_tcp))
-        except ConnectionRefusedError:
-            continue
-        tcp_client.sendall(str.encode(temp_data))
+            data = self.client_socket.recv(1024)
+        except BlockingIOError:
+            return ""
+        data = data.decode("utf8")
+        print(f"data read: {data}")
+        return data
 
-        time.sleep(0.2)
-        temp_data = instance.read_temperature()
-        temp_data = str(temp_data)
 
-        udp_client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp_client.sendto(bytes(temp_data, "utf8"), (HOST, PORT_udp))
-
-        print("Messages sent.")
-        time.sleep(1)
-
-        # data_udp, addr = udp_client.recvfrom(1024)
-
-        # print("Mensagem UDP ecoada:", data_udp.decode())
-except KeyboardInterrupt:
-    pass
-except Exception:
-    import traceback as tb
-    tb.print_exc()
+if __name__ == "__main__":
+    client = SocketClient()
+    client.setup("127.0.0.1", 1027)  # Configure o IP e a porta do servidor
+    client.run()

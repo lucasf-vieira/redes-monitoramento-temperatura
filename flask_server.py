@@ -12,7 +12,7 @@ def index():
 
 
 @app.route("/temperatures", methods=["GET"])
-def get_data():
+def temperatures():
     try:
         with open(data_file, "r") as file:
             file_data = json.load(file)

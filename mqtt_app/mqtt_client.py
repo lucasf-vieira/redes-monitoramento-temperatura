@@ -1,7 +1,7 @@
 import time
 from .mqtt_constants import MQTT_BROKER_HOST, MQTT_TOPIC
 import paho.mqtt.client as mqtt
-from sensor_read.temperature import Temperature
+from modules.temperature import Temperature
 
 
 def on_publish(client, userdata, mid):

@@ -1,6 +1,6 @@
 import time
-from sensor_read.temperature import Temperature
-from .timer import TimerSeconds
+from modules.temperature import Temperature
+from modules.timer import TimerSeconds
 from enum import Enum
 import json
 

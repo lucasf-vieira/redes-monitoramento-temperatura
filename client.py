@@ -1,5 +1,6 @@
 import time
 from sensor_read.temperature import Temperature
+from .timer import TimerSeconds
 from enum import Enum
 import json
 
@@ -100,21 +101,6 @@ class Client:
                 self.send_average_temperature()
 
             time.sleep(0.05)
-
-
-class TimerSeconds:
-    def __init__(self):
-        self.start_time = time.time_ns()
-
-    def elapsed_time(self):
-        elapsed = (self.__get_current_time() - self.start_time)/1e9
-        return elapsed
-
-    def reset(self):
-        self.start_time = time.time_ns()
-
-    def __get_current_time(self):
-        return time.time_ns()
 
 
 if __name__ == "__main__":

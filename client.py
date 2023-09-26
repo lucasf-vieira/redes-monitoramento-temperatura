@@ -57,6 +57,7 @@ class Client:
         # Checar se o commando é valido
         if command_string == "":
             return
+        print(f"data read: {command_string}")
         try:
             command_json = json.loads(command_string)
         except Exception:

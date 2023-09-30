@@ -3,6 +3,7 @@ from modules.temperature import Temperature
 from modules.timer import TimerSeconds
 from constants.command import CommandEnum
 import json
+import threading as th
 
 
 class Client:
@@ -12,6 +13,8 @@ class Client:
         self.readings = []
         self.x_interval = 2  # Valor padrão de X
         self.y_interval = 1  # Valor padrão de Y
+
+        self.running = True
 
     def setup(self, server_ip, server_port):
         self.server_ip = str(server_ip)
@@ -77,18 +80,25 @@ class Client:
         """
         raise NotImplementedError()
 
+    def _commands_receiver(self):
+        while self.running:
+            self.read_command()
+
     def run(self):
         x_timer = TimerSeconds()
         y_timer = TimerSeconds()
-        while True:
-            self.read_command()
+
+        commands_thread = th.Thread(target=self._commands_receiver)
+        commands_thread.daemon = True
+        commands_thread.start()
+        while self.running:
             if y_timer.elapsed_time() >= self.y_interval:
-                y_timer.reset()
                 self.read_temperature()
+                y_timer.reset()
 
             if x_timer.elapsed_time() >= self.x_interval:
-                x_timer.reset()
                 self.send_average_temperature()
+                x_timer.reset()
 
             time.sleep(0.05)
 

@@ -40,28 +40,6 @@ class SocketClient(Client):
         connection_socket.close()
         return data
 
-    def _commands_receiver(self):
-        while self.running:
-            self.read_command()
-
-    def run(self):
-        x_timer = TimerSeconds()
-        y_timer = TimerSeconds()
-
-        commands_thread = th.Thread(target=self._commands_receiver)
-        commands_thread.daemon = True
-        commands_thread.start()
-        while True:
-            if y_timer.elapsed_time() >= self.y_interval:
-                self.read_temperature()
-                y_timer.reset()
-
-            if x_timer.elapsed_time() >= self.x_interval:
-                self.send_average_temperature()
-                x_timer.reset()
-
-            time.sleep(0.05)
-
 
 if __name__ == "__main__":
     client = SocketClient()

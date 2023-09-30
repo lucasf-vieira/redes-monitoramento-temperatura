@@ -6,8 +6,8 @@ import time
 
 
 class SocketClient(Client):
-    CLIENT_IP = "0.0.0.0"
-    CLIENT_PORT = 1027
+    CLIENT_IP = "::"
+    CLIENT_PORT = 47107
 
     def __init__(self):
         super().__init__()
@@ -15,8 +15,8 @@ class SocketClient(Client):
         self.configure_sockets()
 
     def configure_sockets(self):
-        self.command_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.temperature_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.command_socket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+        self.temperature_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
 
         self.command_socket.bind((self.CLIENT_IP, self.CLIENT_PORT))
         self.temperature_socket.bind((self.CLIENT_IP, self.CLIENT_PORT))
@@ -65,5 +65,5 @@ class SocketClient(Client):
 
 if __name__ == "__main__":
     client = SocketClient()
-    client.setup("127.0.0.1", 1028)  # Configure o IP e a porta do servidor
+    client.setup("fe80::dda5:c36b:5a3c:782f", 1028)  # Configure o IP e a porta do servidor
     client.run()

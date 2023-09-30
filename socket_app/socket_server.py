@@ -6,17 +6,12 @@ import json
 import time
 
 
-# Configuração Socket TCP
-# tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# tcp_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# tcp_server.bind(("0.0.0.0", 1025))  # Porta para conexão TCP
-# tcp_server.listen(5)
+socket_tcp = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+socket_udp = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
 
-socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+socket_tcp.bind(("::", 1028))  # Porta para conexão TCP
+socket_udp.bind(("::", 1028))  # Porta para conexão UDP
 
-socket_tcp.bind(("0.0.0.0", 1028))  # Porta para conexão TCP
-socket_udp.bind(("0.0.0.0", 1028))  # Porta para conexão TCP
 
 try:
     # print("Iniciando servidor UDP e TCP")
@@ -30,9 +25,11 @@ try:
         # print(f"Temperatura lida: {temperature}")
         # time.sleep(4)
 
-        data = socket_udp.recv(1024)
+        data, device_address = socket_udp.recvfrom(1024)
         temperature = float(data.decode("utf-8"))
-        print(f"Temperatura lida: {temperature}")
+        print(f"------------------------------------------")
+        print(f"Lista de dispositivos:")
+        print(f"'{device_address}' {temperature}")
 except KeyboardInterrupt:
     socket_tcp.close()
     # tcp_conn.close()

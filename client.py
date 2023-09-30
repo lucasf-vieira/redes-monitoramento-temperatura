@@ -1,19 +1,8 @@
 import time
 from modules.temperature import Temperature
 from modules.timer import TimerSeconds
-from enum import Enum
+from constants.command import CommandEnum
 import json
-
-
-class Commands(Enum):
-    SET_X = "set_x"
-    SET_Y = "set_y"
-    RESET = "reset"
-    SETUP = "setup"
-
-    @classmethod
-    def has_value(cls, value):
-        return value in cls._value2member_map_
 
 
 class Client:
@@ -51,6 +40,7 @@ class Client:
             return
 
         average_temperature = sum(self.readings) / len(self.readings)
+        average_temperature = round(average_temperature, 2)
         self._send(average_temperature)
 
     def read_command(self):
@@ -65,10 +55,10 @@ class Client:
             return
         if not isinstance(command_json, dict):
             return
-        if not Commands.has_value(command_json["command"]):
+        if not CommandEnum.has_value(command_json["command"]):
             return
         command_method = getattr(self, command_json["command"])
-        if command_json["command"] == Commands.SETUP.value:
+        if command_json["command"] == CommandEnum.SETUP.value:
             command_method(
                 command_json["value"]["server_ip"],
                 command_json["value"]["server_port"]

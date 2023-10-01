@@ -7,6 +7,7 @@ import json
 
 class DeviceConnection:
     DEVICE_PORT = 47107
+    SERVER_PORT = 47108
 
     def __init__(self, device_id):
         self.device_id = device_id
@@ -18,11 +19,11 @@ class DeviceConnection:
 
     def initialize(self):
         self.running = True
-        self.temperature = -1
+        self.temperature = ""
         self.command = None
         
-        self.reader_thread = th.Thread(target=self.temperature_reader)
-        self.sender_thread = th.Thread(target=self.command_sender)
+        self.reader_thread = th.Thread(target=self._temperature_reader)
+        self.sender_thread = th.Thread(target=self._command_sender)
 
         self.reader_thread.start()
         self.sender_thread.start()
@@ -61,17 +62,18 @@ class DeviceConnection:
     #  Thread Methods
     #
 
-    def command_sender(self):
+    def _command_sender(self):
         while self.running:
             if self.command is not None:
                 self._send_to_device(json.dumps(self.command))
                 self.command = None
             time.sleep(0.05)
 
-    def temperature_reader(self):
+    def _temperature_reader(self):
         while self.running:
             temperature = self._read_from_device()
-            self.temperature = float(temperature)
+            if temperature is not None and temperature != "":
+                self.temperature = float(temperature)
             time.sleep(0.05)
 
     #
@@ -90,7 +92,7 @@ class DeviceConnection:
 
 if __name__ == "__main__":
     device = DeviceConnection("127.0.0.1")
-    device.command_sender(CommandEnum.RESET.value, "")
-    device.command_sender(CommandEnum.SETUP.value, {"server_ip": "10.0.0.1", "server_port": 8880})
-    device.command_sender(CommandEnum.SET_X.value, 10)
+    device._command_sender(CommandEnum.RESET.value, "")
+    device._command_sender(CommandEnum.SETUP.value, {"server_ip": "10.0.0.1", "server_port": 8880})
+    device._command_sender(CommandEnum.SET_X.value, 10)
     

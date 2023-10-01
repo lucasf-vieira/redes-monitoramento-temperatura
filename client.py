@@ -13,25 +13,29 @@ class Client:
         self.readings = []
         self.x_interval = 2  # Valor padrão de X
         self.y_interval = 1  # Valor padrão de Y
+        self._temperature = Temperature().read_temperature()
 
         self.running = True
 
     def setup(self, server_ip, server_port):
+        print(f"SETUP {server_ip}:{server_port}")
         self.server_ip = str(server_ip)
         self.server_port = int(server_port)
 
     def reset(self):
+        print("RESET")
         self.readings = []
 
     def set_x(self, x):
+        print(f"SET X: {x}")
         self.x_interval = int(x)
 
     def set_y(self, y):
+        print(f"SET Y: {y}")
         self.y_interval = int(y)
 
     def read_temperature(self):
-        temperature = Temperature().read_temperature()
-        self.readings.append(temperature)
+        self.readings.append(self._temperature)
 
     def send_average_temperature(self):
         if not self.server_ip or not self.server_port:
@@ -51,7 +55,6 @@ class Client:
         # Checar se o commando é valido
         if command_string == "":
             return
-        print(f"data read: {command_string}")
         try:
             command_json = json.loads(command_string)
         except Exception:
@@ -66,6 +69,10 @@ class Client:
                 command_json["value"]["server_ip"],
                 command_json["value"]["server_port"]
             )
+            return
+        if command_json["command"] == CommandEnum.RESET.value:
+            command_method()
+            return
         command_method(command_json["value"])
 
     def _read(self) -> str:
@@ -82,7 +89,14 @@ class Client:
 
     def _commands_receiver(self):
         while self.running:
-            self.read_command()
+            try:
+                self.read_command()
+            except Exception as exc:
+                print(exc)
+
+    def _temperature_reader(self):
+        while self.running:
+            self._temperature = Temperature().read_temperature()
 
     def run(self):
         x_timer = TimerSeconds()
@@ -91,7 +105,11 @@ class Client:
         commands_thread = th.Thread(target=self._commands_receiver)
         commands_thread.daemon = True
         commands_thread.start()
-        while self.running:
+
+        temperature_thread = th.Thread(target=self._temperature_reader)
+        temperature_thread.daemon = True
+        temperature_thread.start()
+        while self.running:            
             if y_timer.elapsed_time() >= self.y_interval:
                 self.read_temperature()
                 y_timer.reset()
